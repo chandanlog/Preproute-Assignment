@@ -1,0 +1,360 @@
+.test-form-wrapper {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.test-form-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 36px 40px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.form-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: left;
+}
+
+.form-card-close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.form-card-close-btn:hover {
+  color: #ef4444;
+}
+
+/* Tabs */
+.form-tabs-container {
+  display: flex;
+  margin-bottom: 32px;
+}
+
+.form-tabs {
+  display: flex;
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.form-tab {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-tab.active {
+  background-color: #f0f5ff;
+  color: #5c87f5;
+  font-weight: 600;
+  border: 1px solid #d4e3fc;
+}
+
+/* Form Grid Layout */
+.test-blueprint-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  margin-bottom: 24px;
+}
+
+.test-blueprint-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.test-blueprint-form .form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  text-align: left;
+}
+
+.test-blueprint-form .form-input,
+.test-blueprint-form .form-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  outline: none;
+  background-color: #ffffff;
+  color: #1e293b;
+  transition: all 0.2s ease;
+}
+
+.test-blueprint-form .form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.test-blueprint-form .form-input::placeholder {
+  color: #94a3b8;
+}
+
+.test-blueprint-form .form-input:focus,
+.test-blueprint-form .form-select:focus {
+  border-color: #5c87f5;
+  box-shadow: 0 0 0 3px rgba(92, 135, 245, 0.1);
+}
+
+.test-blueprint-form .input-error {
+  border-color: #ef4444;
+}
+
+.test-blueprint-form .form-error {
+  font-size: 12px;
+  color: #ef4444;
+  text-align: left;
+  margin-top: 2px;
+}
+
+/* Radio buttons matching difficulty level */
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 44px; /* Align height with input fields */
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.radio-label input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 50%;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.radio-label input[type="radio"]:checked {
+  border-color: #5c87f5;
+}
+
+.radio-label input[type="radio"]:checked::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: #5c87f5;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Marking Scheme Section */
+.marking-scheme-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: left;
+  margin: 16px 0 16px 0;
+}
+
+.marking-scheme-limits-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 32px;
+}
+
+.marking-scheme-steppers {
+  display: flex;
+  gap: 24px;
+  flex: 1.2;
+}
+
+.stepper-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.stepper-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #475569;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.stepper-control {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  height: 44px;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.stepper-value {
+  flex: 1;
+  text-align: center;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.stepper-actions {
+  display: flex;
+  flex-direction: column;
+  border-left: 1.5px solid #e2e8f0;
+  width: 28px;
+  height: 100%;
+}
+
+.stepper-btn {
+  border: none;
+  background: transparent;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  height: 22px;
+}
+
+.stepper-btn:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.stepper-btn:first-child {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.limits-inputs {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+}
+
+.limits-inputs .form-group {
+  flex: 1;
+}
+
+.disabled-label {
+  color: #94a3b8 !important;
+}
+
+.disabled-input {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed;
+}
+
+/* Actions Footer */
+.form-actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+  border-top: 1.5px solid #f1f5f9;
+  padding-top: 24px;
+}
+
+.btn-cancel {
+  background-color: #f4f6fc;
+  color: #5c87f5;
+  border: none;
+  border-radius: 6px;
+  height: 44px;
+  padding: 0 28px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #e8ecf8;
+}
+
+.btn-next {
+  background-color: #5c87f5;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  height: 44px;
+  padding: 0 28px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.btn-next:hover {
+  background-color: #4772e0;
+}
+
+@media (max-width: 900px) {
+  .form-row-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .marking-scheme-limits-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .test-form-card {
+    padding: 24px;
+  }
+}
