@@ -313,7 +313,9 @@ export const AddQuestions: React.FC = () => {
       let newSavedIds: string[] = [];
       if (newItems.length > 0) {
         const preparedNew = newItems.map(q => {
-          const { id: _, ...rest } = q;
+          // Strip fields not present in the DB schema
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id: _, sub_topic_id, media_url, ...rest } = q;
           return rest;
         });
         const bulkRes = await apiService.bulkCreateQuestions(preparedNew as Question[]);
@@ -341,7 +343,9 @@ export const AddQuestions: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Error saving questions:', err);
-      setApiError(err.response?.data?.message || 'Failed to save questions. Please check details.');
+      const apiErr = err.response?.data;
+      const detailMsg = apiErr?.errors?.message || apiErr?.message || 'Failed to save questions. Please check details.';
+      setApiError(detailMsg);
     } finally {
       setSaving(false);
     }
