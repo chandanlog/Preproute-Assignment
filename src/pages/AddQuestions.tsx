@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import type { Test, Question, Topic, SubTopic } from '../services/api';
@@ -15,6 +15,8 @@ import './AddQuestions.css';
 export const AddQuestions: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Core Data States
   const [test, setTest] = useState<Test | null>(null);
@@ -203,6 +205,71 @@ export const AddQuestions: React.FC = () => {
       sub_topic_id: test?.sub_topics?.[0] || '',
       media_url: undefined
     });
+  };
+
+  // ── CSV Import ─────────────────────────────────────────────────────────────
+  const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      // Skip header row if it contains "question" (case-insensitive)
+      const dataLines = lines[0]?.toLowerCase().includes('question') ? lines.slice(1) : lines;
+      const parsed: Question[] = dataLines.map((line) => {
+        // Support comma-separated; handle quoted fields
+        const cols = line.match(/(?:"([^"]*)"|([^,]*))/g)?.map(c =>
+          c.startsWith('"') ? c.slice(1, -1) : c
+        ) || [];
+        return {
+          type: 'mcq',
+          question:       cols[0] || '',
+          option1:        cols[1] || '',
+          option2:        cols[2] || '',
+          option3:        cols[3] || '',
+          option4:        cols[4] || '',
+          correct_option: cols[5] || 'option1',
+          explanation:    cols[6] || '',
+          difficulty:     (cols[7] || 'easy').toLowerCase(),
+          test_id:        id || '',
+          topic_id:       test?.topics?.[0] || '',
+          sub_topic_id:   test?.sub_topics?.[0] || '',
+        };
+      }).filter(q => q.question.trim() !== '');
+
+      if (parsed.length === 0) {
+        setApiError('CSV file is empty or has no valid question rows.');
+        return;
+      }
+
+      setQuestions(prev => {
+        const limit = totalQuestionsLimit;
+        const merged = [...prev];
+        parsed.forEach((q, idx) => {
+          if (idx < limit) merged[idx] = { ...merged[idx], ...q };
+        });
+        return merged;
+      });
+      setActiveIndex(0);
+      setApiError('');
+    };
+    reader.readAsText(file);
+    // Reset so same file can be re-uploaded
+    e.target.value = '';
+  };
+
+  // ── Image Upload ───────────────────────────────────────────────────────────
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const dataUrl = evt.target?.result as string;
+      updateActiveQuestion({ media_url: dataUrl });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   // Helper pagination handlers
@@ -431,9 +498,22 @@ export const AddQuestions: React.FC = () => {
               <button type="button" className="btn-add-mcq" onClick={() => handleNext()}>
                 <span className="btn-icon">+</span> MCQ
               </button>
-              <button type="button" className="btn-csv-upload" title="Import CSV">
+              <button
+                type="button"
+                className="btn-csv-upload"
+                title="Import questions from CSV"
+                onClick={() => csvInputRef.current?.click()}
+              >
                 <span>⤓</span> CSV
               </button>
+              {/* Hidden CSV file input */}
+              <input
+                ref={csvInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                style={{ display: 'none' }}
+                onChange={handleCSVUpload}
+              />
             </div>
           </div>
 
@@ -464,7 +544,22 @@ export const AddQuestions: React.FC = () => {
               <span className="tool-divider"></span>
               <button type="button" className="tool-btn" title="Table"><Table size={15} /></button>
               <button type="button" className="tool-btn" title="Equation"><Sigma size={15} /></button>
-              <button type="button" className="tool-btn" title="Image"><Image size={15} /></button>
+              <button
+                type="button"
+                className="tool-btn"
+                title="Insert Image"
+                onClick={() => imageInputRef.current?.click()}
+              >
+                <Image size={15} />
+              </button>
+              {/* Hidden image file input */}
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleImageUpload}
+              />
             </div>
             
             {/* TextArea content */}
@@ -479,6 +574,24 @@ export const AddQuestions: React.FC = () => {
                 <Trash2 size={16} />
               </button>
             </div>
+            {/* Image preview below question textarea */}
+            {activeQuestion.media_url && (
+              <div className="question-image-preview">
+                <img
+                  src={activeQuestion.media_url}
+                  alt="Question attachment"
+                  style={{ maxWidth: '100%', maxHeight: '220px', borderRadius: '8px', marginTop: '10px', border: '1px solid var(--border-color)' }}
+                />
+                <button
+                  type="button"
+                  className="btn-delete-edits"
+                  style={{ marginTop: '6px', fontSize: '12px' }}
+                  onClick={() => updateActiveQuestion({ media_url: undefined })}
+                >
+                  <Trash2 size={13} /> Remove Image
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Options grid */}
