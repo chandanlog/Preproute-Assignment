@@ -5,7 +5,7 @@
       "destination": "https://admin-moderator-backend-staging.up.railway.app/api/:path*"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
