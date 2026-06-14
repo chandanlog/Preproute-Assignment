@@ -324,8 +324,30 @@ export const TestForm: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Error saving test details:', err);
-      const msg = err.response?.data?.message || 'Failed to save test details. Please try again.';
-      setApiError(msg);
+      // Extract specific field-level validation errors from the API response
+      const apiErrors: { path: string; msg: string }[] = err.response?.data?.errors || [];
+      if (apiErrors.length > 0) {
+        const fieldErrors: { [key: string]: string } = {};
+        apiErrors.forEach(({ path, msg }) => {
+          // Map backend field path to our form field keys
+          if (path === 'subject' && msg.toLowerCase().includes('name already exists')) {
+            fieldErrors.name = 'A test with this name already exists for this subject. Please use a different test name.';
+          } else if (path === 'name') {
+            fieldErrors.name = msg;
+          } else if (path === 'subject') {
+            fieldErrors.subject = msg;
+          } else {
+            // Fallback: show in the general error banner
+            setApiError(msg);
+          }
+        });
+        if (Object.keys(fieldErrors).length > 0) {
+          setFormErrors(prev => ({ ...prev, ...fieldErrors }));
+        }
+      } else {
+        const msg = err.response?.data?.message || 'Failed to save test details. Please try again.';
+        setApiError(msg);
+      }
     } finally {
       setLoading(false);
     }
