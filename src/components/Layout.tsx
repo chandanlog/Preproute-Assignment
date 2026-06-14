@@ -3,10 +3,12 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   LayoutDashboard, FilePlus, FileText, LogOut, Bell, ChevronDown,
-  Clock, FolderOpen, Users, Building2, CircleUser, Trash2, DollarSign, Trophy, MessageSquare, Settings
+  Clock, FolderOpen, Users, Building2, CircleUser, Trash2, DollarSign, Trophy, MessageSquare, Settings,
+  Menu, X
 } from 'lucide-react';
 import { PrepRouteLogo } from './PrepRouteLogo';
 import './Layout.css';
+
 
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -79,10 +81,17 @@ export const Layout: React.FC = () => {
     ? menuItems 
     : menuItems.filter(item => !item.isMock);
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="app-layout">
+      {/* Backdrop for mobile layout menu */}
+      {mobileMenuOpen && (
+        <div className="sidebar-backdrop" onClick={() => setMobileMenuOpen(false)} />
+      )}
+
       {/* Sidebar (Collapsed or Expanded) */}
-      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-brand">
           <PrepRouteLogo height={34} width={isCollapsed ? 40 : 150} className={isCollapsed ? 'logo-collapsed' : ''} />
         </div>
@@ -110,6 +119,7 @@ export const Layout: React.FC = () => {
                     return `sidebar-link ${isActive || isTestCreationActive ? 'active' : ''}`;
                   }} 
                   end={item.to === '/'}
+                  onClick={() => setMobileMenuOpen(false)}
                 >
                   <Icon size={18} />
                   {!isCollapsed && <span>{item.label}</span>}
@@ -128,8 +138,15 @@ export const Layout: React.FC = () => {
       <main className={`main-content ${isCollapsed ? 'collapsed-sidebar' : ''}`}>
         <header className="app-header">
           <div className="header-left">
-            {/* Empty space, breadcrumbs are in the page-content area per screenshot */}
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Menu"
+            >
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
+
 
           <div className="header-actions">
             {/* Notification Bell with red notification badge */}
@@ -182,17 +199,33 @@ export const Layout: React.FC = () => {
         </header>
 
         <div className="page-container">
-          {/* Breadcrumbs inside the content area */}
-          <div className="content-breadcrumbs">
-            {breadcrumbs.map((crumb, idx) => (
-              <React.Fragment key={crumb}>
-                {idx > 0 && <span className="breadcrumb-separator">/</span>}
-                <span className={`breadcrumb-item ${idx === breadcrumbs.length - 1 ? 'active' : ''}`}>
-                  {crumb}
-                </span>
-              </React.Fragment>
-            ))}
+          {/* Breadcrumbs header row */}
+          <div className="content-header-row">
+            <div className="content-breadcrumbs">
+              {breadcrumbs.map((crumb, idx) => (
+                <React.Fragment key={crumb}>
+                  {idx > 0 && <span className="breadcrumb-separator">/</span>}
+                  <span className={`breadcrumb-item ${idx === breadcrumbs.length - 1 ? 'active' : ''}`}>
+                    {crumb}
+                  </span>
+                </React.Fragment>
+              ))}
+            </div>
+            
+            {location.pathname.includes('/questions') && (
+              <button 
+                className="btn-publish-header"
+                onClick={() => {
+                  const pathParts = location.pathname.split('/');
+                  const testId = pathParts[2];
+                  navigate(`/tests/${testId}/preview`);
+                }}
+              >
+                Publish
+              </button>
+            )}
           </div>
+
 
           <Outlet />
         </div>

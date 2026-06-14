@@ -3,7 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import type { Test, Question } from '../services/api';
 import { Check, AlertCircle, Loader, Calendar, ChevronDown } from 'lucide-react';
+import { PrepRouteLogo } from '../components/PrepRouteLogo';
 import './PreviewPublish.css';
+
 
 export const PreviewPublish: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,8 +48,23 @@ export const PreviewPublish: React.FC = () => {
         const testData = response.data;
         setTest(testData);
 
-        if (testData.subject) {
-          const topicsRes = await apiService.getTopicsBySubject(testData.subject);
+        let subjectUuid = testData.subject;
+        if (subjectUuid) {
+          // Verify if subjectUuid is a valid UUID
+          const isSubjectUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subjectUuid);
+          if (!isSubjectUuid) {
+            const subjectsRes = await apiService.getSubjects();
+            if (subjectsRes.success) {
+              const matched = subjectsRes.data.find(
+                s => s.id === subjectUuid || s.name.toLowerCase() === subjectUuid.toLowerCase()
+              );
+              if (matched) {
+                subjectUuid = matched.id;
+              }
+            }
+          }
+
+          const topicsRes = await apiService.getTopicsBySubject(subjectUuid);
           if (topicsRes.success) {
             const topicIds = topicsRes.data.map(t => t.id);
             if (topicIds.length > 0) {
@@ -147,6 +164,9 @@ export const PreviewPublish: React.FC = () => {
     <div className="publish-layout-container">
       {/* 1. Left Sidebar Question list */}
       <div className="publish-side-nav">
+        <div className="side-nav-brand">
+          <PrepRouteLogo height={34} width={150} />
+        </div>
         <div className="side-nav-header">
           <span className="side-nav-title">Question creation</span>
           <button className="collapse-btn-icon" title="Collapse panel">
@@ -160,7 +180,11 @@ export const PreviewPublish: React.FC = () => {
           {questions.map((q, idx) => {
             const isComposed = isQuestionComposed(q);
             return (
-              <div key={idx} className="side-nav-item readonly-item">
+              <div 
+                key={idx} 
+                className={`side-nav-item readonly-item ${isComposed ? 'composed' : ''}`}
+                data-number={idx + 1}
+              >
                 {isComposed ? (
                   <span className="composed-check-icon">✓</span>
                 ) : (

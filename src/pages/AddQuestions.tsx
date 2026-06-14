@@ -5,9 +5,12 @@ import type { Test, Question, Topic, SubTopic } from '../services/api';
 import { 
   Trash2, Loader, AlertCircle, ChevronLeft, ChevronRight,
   Bold, Italic, Underline, Link2, AlignLeft, AlignCenter, AlignRight, List, ListOrdered,
-  Table, Image, Sigma
+  Table, Image, Sigma, Edit2
 } from 'lucide-react';
+import { PrepRouteLogo } from '../components/PrepRouteLogo';
 import './AddQuestions.css';
+
+
 
 export const AddQuestions: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +24,19 @@ export const AddQuestions: React.FC = () => {
 
   // Active state tracker
   const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  // Helper to resolve Topic Name from UUID/string
+  const getTopicName = (topicVal: string) => {
+    const matched = topicsList.find(t => t.id === topicVal);
+    return matched ? matched.name : topicVal;
+  };
+
+  // Helper to resolve SubTopic Name from UUID/string
+  const getSubTopicName = (subVal: string) => {
+    const matched = subTopicsList.find(st => st.id === subVal);
+    return matched ? matched.name : subVal;
+  };
+
 
   // UI status states
   const [loading, setLoading] = useState(true);
@@ -46,16 +62,56 @@ export const AddQuestions: React.FC = () => {
         const testData = response.data;
         setTest(testData);
 
-        if (testData.subject) {
-          const topicsRes = await apiService.getTopicsBySubject(testData.subject);
+        let subjectUuid = testData.subject;
+        const mappedTopics: string[] = [];
+        const mappedSubTopics: string[] = [];
+
+        if (subjectUuid) {
+          // Verify if subjectUuid is a valid UUID
+          const isSubjectUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subjectUuid);
+          if (!isSubjectUuid) {
+            const subjectsRes = await apiService.getSubjects();
+            if (subjectsRes.success) {
+              const matched = subjectsRes.data.find(
+                s => s.id === subjectUuid || s.name.toLowerCase() === subjectUuid.toLowerCase()
+              );
+              if (matched) {
+                subjectUuid = matched.id;
+              }
+            }
+          }
+
+          const topicsRes = await apiService.getTopicsBySubject(subjectUuid);
           if (topicsRes.success) {
             setTopicsList(topicsRes.data);
+
+            // Map test topics (names or IDs) to topic UUIDs
+            testData.topics?.forEach(t => {
+              const matchById = topicsRes.data.find(topic => topic.id === t);
+              const matchByName = topicsRes.data.find(topic => topic.name.toLowerCase() === t.toLowerCase());
+              if (matchById) {
+                mappedTopics.push(matchById.id);
+              } else if (matchByName) {
+                mappedTopics.push(matchByName.id);
+              }
+            });
 
             const topicIds = topicsRes.data.map(t => t.id);
             if (topicIds.length > 0) {
               const subTopicsRes = await apiService.getSubTopicsMultiTopics(topicIds);
               if (subTopicsRes.success) {
                 setSubTopicsList(subTopicsRes.data);
+
+                // Map test sub_topics to UUIDs
+                testData.sub_topics?.forEach(st => {
+                  const matchById = subTopicsRes.data.find(sub => sub.id === st);
+                  const matchByName = subTopicsRes.data.find(sub => sub.name.toLowerCase() === st.toLowerCase());
+                  if (matchById) {
+                    mappedSubTopics.push(matchById.id);
+                  } else if (matchByName) {
+                    mappedSubTopics.push(matchByName.id);
+                  }
+                });
               }
             }
           }
@@ -91,22 +147,23 @@ export const AddQuestions: React.FC = () => {
             explanation: '',
             difficulty: 'easy',
             test_id: testId,
-            topic_id: testData.topics?.[0] || '',
-            sub_topic_id: testData.sub_topics?.[0] || '',
+            topic_id: mappedTopics[0] || testData.topics?.[0] || '',
+            sub_topic_id: mappedSubTopics[0] || testData.sub_topics?.[0] || '',
           };
         });
 
         setQuestions(paddedQuestions);
       } else {
-        setApiError('Could not load test information.');
+        setApiError('Could not load test details.');
       }
     } catch (err) {
       console.error('Error loading test data:', err);
-      setApiError('An error occurred while fetching test details.');
+      setApiError('An error occurred while loading test data.');
     } finally {
       setLoading(false);
     }
   };
+
 
   // Check if a specific question is fully composed
   const isQuestionComposed = (q: Question) => {
@@ -244,6 +301,9 @@ export const AddQuestions: React.FC = () => {
     <div className="questions-layout-container">
       {/* 1. Left Question Navigation List */}
       <div className="questions-side-nav">
+        <div className="side-nav-brand">
+          <PrepRouteLogo height={34} width={150} />
+        </div>
         <div className="side-nav-header">
           <span className="side-nav-title">Question creation</span>
           <button className="collapse-btn-icon" title="Collapse panel">
@@ -261,8 +321,9 @@ export const AddQuestions: React.FC = () => {
               <button
                 key={idx}
                 type="button"
-                className={`side-nav-item ${isActive ? 'active' : ''}`}
+                className={`side-nav-item ${isActive ? 'active' : ''} ${isComposed ? 'composed' : ''}`}
                 onClick={() => setActiveIndex(idx)}
+                data-number={idx + 1}
               >
                 {isComposed ? (
                   <span className="composed-check-icon">✓</span>
@@ -284,45 +345,63 @@ export const AddQuestions: React.FC = () => {
         {test && (
           <div className="test-blueprint-summary-card">
             <div className="summary-left-pills">
-              <div className="summary-badge-type">Chapter Wise</div>
+              <div className="summary-badge-type">
+                {test.type === 'mock' ? 'Mock Test' : test.type === 'pyq' ? 'PYQ' : 'Chapter Wise'}
+              </div>
               <div className="summary-title-difficulty">
-                <span className="blueprint-title">Chapter 1</span>
-                <span className="blueprint-diff-badge">Easy</span>
+                <span className="blueprint-title">{test.name}</span>
+                <span className="blueprint-diff-badge" style={{ textTransform: 'capitalize' }}>
+                  {test.difficulty || 'Easy'}
+                </span>
               </div>
               
               <div className="blueprint-metadata-list">
                 <div className="meta-row">
                   <span className="meta-lbl">Subject</span>
-                  <span className="meta-val">: English</span>
+                  <span className="meta-colon">:</span>
+                  <span className="meta-val">{test.subject}</span>
                 </div>
-                <div className="meta-row">
-                  <span className="meta-lbl">Topic</span>
-                  <span className="meta-val">
-                    <span className="yellow-meta-pill">Grammar</span>
-                    <span className="yellow-meta-pill">Writing</span>
-                  </span>
-                </div>
-                <div className="meta-row">
-                  <span className="meta-lbl">Sub Topic</span>
-                  <span className="meta-val">
-                    <span className="yellow-meta-pill">Application</span>
-                  </span>
-                </div>
+                {test.topics && test.topics.length > 0 && (
+                  <div className="meta-row">
+                    <span className="meta-lbl">Topic</span>
+                    <span className="meta-colon">:</span>
+                    <span className="meta-val">
+                      {test.topics.map((t, index) => (
+                        <span key={index} className="yellow-meta-pill">{getTopicName(t)}</span>
+                      ))}
+                    </span>
+                  </div>
+                )}
+                {test.sub_topics && test.sub_topics.length > 0 && (
+                  <div className="meta-row">
+                    <span className="meta-lbl">Sub Topic</span>
+                    <span className="meta-colon">:</span>
+                    <span className="meta-val">
+                      {test.sub_topics.map((st, index) => (
+                        <span key={index} className="yellow-meta-pill">{getSubTopicName(st)}</span>
+                      ))}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="summary-right-stats">
-              <div className="stat-pill">
-                <span className="stat-icon">⏱</span>
-                <span>{test.total_time} Min</span>
-              </div>
-              <div className="stat-pill">
-                <span className="stat-icon">📄</span>
-                <span>{totalQuestionsLimit} Q's</span>
-              </div>
-              <div className="stat-pill">
-                <span className="stat-icon">📊</span>
-                <span>{test.total_marks} Marks</span>
+              <div className="stats-unified-capsule">
+                <div className="stat-item">
+                  <span className="stat-icon">⏱</span>
+                  <span>{test.total_time} Min</span>
+                </div>
+                <div className="stat-separator"></div>
+                <div className="stat-item">
+                  <span className="stat-icon">📄</span>
+                  <span>{totalQuestionsLimit} Q's</span>
+                </div>
+                <div className="stat-separator"></div>
+                <div className="stat-item">
+                  <span className="stat-icon">📊</span>
+                  <span>{test.total_marks} Marks</span>
+                </div>
               </div>
             </div>
 
@@ -331,7 +410,7 @@ export const AddQuestions: React.FC = () => {
               onClick={() => navigate(`/tests/${id}/edit`)}
               title="Edit parameters"
             >
-              ✎
+              <Edit2 size={16} />
             </button>
           </div>
         )}

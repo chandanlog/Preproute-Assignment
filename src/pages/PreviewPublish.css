@@ -21,6 +21,14 @@
   z-index: 80;
 }
 
+.publish-side-nav .side-nav-brand {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+
 .publish-side-nav .side-nav-header {
   display: flex;
   align-items: center;
@@ -34,6 +42,7 @@
   font-weight: 700;
   color: #1e293b;
 }
+
 
 .publish-side-nav .collapse-btn-icon {
   background: none;
@@ -62,18 +71,35 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
-  padding: 12px 20px;
-  background: transparent;
-  border: none;
-  border-left: 3px solid transparent;
-  border-bottom: 1px solid #f8fafc;
+  margin: 6px 16px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
   text-align: left;
   color: #64748b;
+  transition: all 0.2s ease;
+  width: calc(100% - 32px);
+  box-sizing: border-box;
 }
 
 .publish-side-nav .readonly-item {
   cursor: default;
+}
+
+.publish-side-nav .side-nav-item.composed {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.publish-side-nav .side-nav-item.composed .composed-check-icon {
+  background-color: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.publish-side-nav .side-nav-item.composed .item-arrow {
+  color: #10b981;
 }
 
 .publish-side-nav .composed-check-icon {
@@ -98,7 +124,7 @@
 }
 
 .publish-side-nav .item-label {
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 .publish-side-nav .item-arrow {
@@ -106,6 +132,7 @@
   color: #cbd5e1;
   font-size: 14px;
 }
+
 
 /* 2. Main Confirmation Form Panel */
 .publish-main-content {
@@ -433,18 +460,86 @@
 @media (max-width: 900px) {
   .publish-layout-container {
     flex-direction: column;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
   }
   .publish-side-nav {
     width: 100%;
     height: auto;
-    position: relative;
-    top: 0;
+    position: sticky;
+    top: var(--header-height);
+    background-color: #ffffff;
+    border-bottom: 1.5px solid #e2e8f0;
+    border-right: none;
+    z-index: 70;
   }
+  .publish-side-nav .side-nav-header {
+    padding: 12px 16px;
+  }
+  .publish-side-nav .side-nav-sub {
+    display: none;
+  }
+  .publish-side-nav .side-nav-list {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px 16px;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .publish-side-nav .side-nav-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1.5px solid #cbd5e1;
+    background-color: #ffffff;
+    flex-shrink: 0;
+  }
+  .publish-side-nav .side-nav-item .item-label,
+  .publish-side-nav .side-nav-item .composed-check-icon,
+  .publish-side-nav .side-nav-item .empty-dot-icon,
+  .publish-side-nav .side-nav-item .item-arrow {
+    display: none !important;
+  }
+  .publish-side-nav .side-nav-item::before {
+    content: attr(data-number);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .publish-side-nav .side-nav-item.composed {
+    background-color: #e6f7ed;
+    border-color: #10b981;
+    color: #10b981;
+  }
+  .publish-side-nav .side-nav-item.composed::before {
+    content: "✓";
+  }
+  
   .publish-main-content {
     padding: 16px;
+  }
+  .publish-config-card {
+    padding: 24px 16px;
+  }
+  .datepicker-row {
+    flex-direction: column;
+    gap: 16px;
   }
   .live-until-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
+  .publish-actions-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .publish-actions-footer button {
+    width: 100%;
+  }
 }
+

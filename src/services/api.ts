@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -136,9 +137,10 @@ export const apiService = {
   },
 
   createTest: async (testData: Omit<Test, 'id' | 'status'>): Promise<{ success: boolean; data: Test; message: string }> => {
-    const response = await api.post('/tests', { ...testData, status: null });
+    const response = await api.post('/tests', { ...testData, status: 'draft' });
     return response.data;
   },
+
 
   updateTest: async (id: string, testData: Partial<Test>): Promise<{ success: boolean; data: Test }> => {
     const response = await api.put(`/tests/${id}`, testData);

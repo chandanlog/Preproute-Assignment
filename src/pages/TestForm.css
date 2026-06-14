@@ -358,3 +358,23 @@
     padding: 24px;
   }
 }
+
+@media (max-width: 480px) {
+  .marking-scheme-steppers {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .limits-inputs {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .form-tabs {
+    flex-direction: column;
+    width: 100%;
+  }
+  .form-tab {
+    width: 100%;
+    text-align: center;
+  }
+}
+
