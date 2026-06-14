@@ -23,6 +23,22 @@ api.interceptors.request.use(
   }
 );
 
+// Response interceptor to normalize success status
+api.interceptors.response.use(
+  (response) => {
+    if (response.data && typeof response.data === 'object') {
+      if (response.data.status === 'success') {
+        response.data.success = true;
+      }
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+
 // TypeScript Interfaces
 export interface Subject {
   id: string;
