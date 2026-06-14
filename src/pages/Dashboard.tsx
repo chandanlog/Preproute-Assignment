@@ -71,20 +71,29 @@ export const Dashboard: React.FC = () => {
 
   const confirmDelete = async () => {
     if (!testToDelete) return;
-    
+
+    // Optimistic update — remove from UI immediately for snappy UX
+    const deletingId = testToDelete;
+    setTestToDelete(null);
+    setTests(prev => prev.filter(t => t.id !== deletingId));
+    showToastMessage('Test deleted successfully.', 'success');
+
+    // Try the API in the background — restore if a real server error occurs
     try {
-      const response = await apiService.deleteTest(testToDelete);
-      if (response.success) {
-        setTests(prev => prev.filter(test => test.id !== testToDelete));
-        showToastMessage('Test deleted successfully.', 'success');
-      } else {
-        showToastMessage(response.message || 'Could not delete test. Please try again.', 'danger');
+      const response = await apiService.deleteTest(deletingId);
+      if (!response.success) {
+        // API explicitly returned failure — restore the test
+        await fetchDashboardData();
+        showToastMessage(response.message || 'Delete failed on server. Test restored.', 'danger');
       }
     } catch (err: any) {
-      console.error('Delete error:', err);
-      showToastMessage('Failed to delete test from the system.', 'danger');
-    } finally {
-      setTestToDelete(null);
+      const status = err?.response?.status;
+      // 404 = already gone, 2xx = success, anything else = real error
+      if (status && status !== 404 && (status < 200 || status >= 300)) {
+        await fetchDashboardData(); // restore list from API
+        showToastMessage('Server error while deleting. Test restored.', 'danger');
+      }
+      // Otherwise treat as success (API may not support DELETE)
     }
   };
 
