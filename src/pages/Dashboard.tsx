@@ -154,25 +154,12 @@ export const Dashboard: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {testToDelete && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.4)',
-          backdropFilter: 'blur(4px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 500,
-          padding: '20px'
-        }}>
-          <div className="card" style={{ maxWidth: '400px', width: '100%', animation: 'slideUp 0.2s ease' }}>
+        <div className="modal-overlay" onClick={() => setTestToDelete(null)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
               <div style={{
-                width: '40px',
-                height: '40px',
+                width: '44px',
+                height: '44px',
                 borderRadius: '50%',
                 backgroundColor: 'var(--danger-bg)',
                 color: 'var(--danger)',
@@ -181,11 +168,11 @@ export const Dashboard: React.FC = () => {
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                <AlertTriangle size={20} />
+                <AlertTriangle size={22} />
               </div>
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px' }}>Delete Test</h3>
-                <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Are you sure you want to delete this test? This action cannot be undone.</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.5 }}>Are you sure you want to delete this test? This action cannot be undone.</p>
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
@@ -195,6 +182,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
+
 
       {/* Stats Summary Section */}
       <section className="dashboard-stats">
