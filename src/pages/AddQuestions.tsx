@@ -315,7 +315,7 @@ export const AddQuestions: React.FC = () => {
         const preparedNew = newItems.map(q => {
           // Strip fields not present in the DB schema
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: _, sub_topic_id, media_url, ...rest } = q;
+          const { id: _, sub_topic_id, topic_id, media_url, ...rest } = q;
           return rest;
         });
         const bulkRes = await apiService.bulkCreateQuestions(preparedNew as Question[]);
