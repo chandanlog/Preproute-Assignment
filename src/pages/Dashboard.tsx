@@ -78,9 +78,9 @@ export const Dashboard: React.FC = () => {
         setTests(prev => prev.filter(test => test.id !== testToDelete));
         showToastMessage('Test deleted successfully.', 'success');
       } else {
-        showToastMessage('Could not delete test. API returned failure.', 'danger');
+        showToastMessage(response.message || 'Could not delete test. Please try again.', 'danger');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Delete error:', err);
       showToastMessage('Failed to delete test from the system.', 'danger');
     } finally {

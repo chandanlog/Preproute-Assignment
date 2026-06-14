@@ -153,14 +153,25 @@ export const apiService = {
     return response.data;
   },
 
-  deleteTest: async (id: string): Promise<{ success: boolean }> => {
-    // Attempt standard delete API endpoint; handle failure or mock if backend does not support delete
+  deleteTest: async (id: string): Promise<{ success: boolean; message?: string }> => {
     try {
       const response = await api.delete(`/tests/${id}`);
-      return response.data;
-    } catch (error) {
-      console.warn('DELETE endpoint failed or not implemented, simulating local deletion success.', error);
-      return { success: true };
+      // 204 No Content → response.data is empty string or null → treat as success
+      // 200 with body → response.data.success is already normalized by interceptor
+      const data = response.data;
+      if (!data || (typeof data === 'string' && data.trim() === '')) {
+        return { success: true }; // 204 No Content
+      }
+      if (data.success || data.status === 'success') {
+        return { success: true };
+      }
+      return { success: false, message: data.message || 'Delete failed.' };
+    } catch (error: any) {
+      const status = error?.response?.status;
+      // 404 means already deleted — treat as success
+      if (status === 404) return { success: true };
+      const msg = error?.response?.data?.message || 'Failed to delete test.';
+      return { success: false, message: msg };
     }
   },
 
