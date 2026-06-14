@@ -218,12 +218,36 @@ export const AddQuestions: React.FC = () => {
       const text = evt.target?.result as string;
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
       // Skip header row if it contains "question" (case-insensitive)
-      const dataLines = lines[0]?.toLowerCase().includes('question') ? lines.slice(1) : lines;
+      const dataLines = lines[0]?.toLowerCase().startsWith('question') ? lines.slice(1) : lines;
+
+      // Proper CSV line parser — handles quoted fields (e.g. "text with, comma")
+      const parseCSVLine = (line: string): string[] => {
+        const result: string[] = [];
+        let current = '';
+        let insideQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            // Handle escaped double-quote ""
+            if (insideQuotes && line[i + 1] === '"') {
+              current += '"';
+              i++;
+            } else {
+              insideQuotes = !insideQuotes;
+            }
+          } else if (ch === ',' && !insideQuotes) {
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += ch;
+          }
+        }
+        result.push(current.trim()); // push last field
+        return result;
+      };
+
       const parsed: Question[] = dataLines.map((line) => {
-        // Support comma-separated; handle quoted fields
-        const cols = line.match(/(?:"([^"]*)"|([^,]*))/g)?.map(c =>
-          c.startsWith('"') ? c.slice(1, -1) : c
-        ) || [];
+        const cols = parseCSVLine(line);
         return {
           type: 'mcq',
           question:       cols[0] || '',
