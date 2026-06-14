@@ -89,6 +89,7 @@ export interface Question {
   explanation?: string;
   difficulty?: string;
   test_id: string;
+  subject?: string;       // subject UUID — required by bulk create API
   topic_id?: string;
   sub_topic_id?: string;
   media_url?: string;

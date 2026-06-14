@@ -149,6 +149,7 @@ export const AddQuestions: React.FC = () => {
             explanation: '',
             difficulty: 'easy',
             test_id: testId,
+            subject: testData.subject || '',
             topic_id: mappedTopics[0] || testData.topics?.[0] || '',
             sub_topic_id: mappedSubTopics[0] || testData.sub_topics?.[0] || '',
           };
@@ -201,6 +202,7 @@ export const AddQuestions: React.FC = () => {
       correct_option: 'option1',
       explanation: '',
       difficulty: 'easy',
+      subject: test?.subject || '',
       topic_id: test?.topics?.[0] || '',
       sub_topic_id: test?.sub_topics?.[0] || '',
       media_url: undefined
@@ -233,6 +235,7 @@ export const AddQuestions: React.FC = () => {
           explanation:    cols[6] || '',
           difficulty:     (cols[7] || 'easy').toLowerCase(),
           test_id:        id || '',
+          subject:        test?.subject || '',
           topic_id:       test?.topics?.[0] || '',
           sub_topic_id:   test?.sub_topics?.[0] || '',
         };
